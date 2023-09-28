@@ -10,26 +10,40 @@ public class Main {
 }
 
 class Cliente {
-    private final String nombre;
-    private final String rut;
+    private String nombre;
+    private String rut;
     private Direccion dirCliente;
 
-    public Cliente(String n, String r, Direccion dirObj) {
+    public Cliente(String n, String r, Direccion d) {
         this.nombre = n;
         this.rut = r;
-        dirCliente = dirObj;
+        this.dirCliente = d;
+        /* Si varios clientes tienen la misma direccion,
+         * entonces sus propiedades dirCliente tienen la misma referencia
+         * (no son instancias nuevas de Direccion)*/
     }
-
-
+    /* Metodos getter y setter para las propiedades de Cliente */
+    public void setNombre(String str) {nombre = str;}
+    public String getNombre() {return nombre;}
+    public void setRut(String str) {rut = str;}
+    public String getRut() {return rut;}
+    public void setDirCliente(Direccion dir) {dirCliente = dir;}
+    public Direccion getDirCliente() {return dirCliente;}
+    /* Metodo toString que a su vez utiliza el toString de Direccion */
+    public String toString() {
+        return (this.getNombre() + ", RUT: " + this.getRut() + ", Direccion: " + this.dirCliente);
+    }
 }
 
-class Direccion { /*Según el diagrama UML, es posible que varios clientes tengan la misma dirección.
-                  /*¿Será necesario que apunten a la misma referencia?  */
+class Direccion {
+    /* Según el diagrama UML, es posible que varios clientes tengan la misma dirección.
+    /* ¿Será necesario que apunten a la misma referencia?
+    /* La respuesta es Si, lo he confirmado con el profesor Geoffrey.*/
     private String direccion = null;
 
     public Direccion() {}
-    public String dirGet() {return direccion;}
-    public void dirSet(String inputString) {this.direccion = inputString;}
+    public String getDir() {return direccion;}
+    public void setDir(String inputString) {this.direccion = inputString;}
 
 }
 
