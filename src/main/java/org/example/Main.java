@@ -32,8 +32,10 @@ class Cliente {
     public Direccion getDirCliente() {return dirCliente;}
     /* Metodo toString que a su vez utiliza el toString de Direccion */
     public String toString() {
-        /*Aqui falta el toString de dircliente?? -> this.dirCliente.toString() ¿?*/
-        return (this.getNombre() + ", RUT: " + this.getRut() + ", Direccion: " + this.dirCliente);
+        /*Aqui falta el toString de dircliente?? -> this.dirCliente.toString() ¿?
+
+        // si. Me agile*/
+        return ("Nombre: " + this.getNombre() + ", RUT: " + this.getRut() + this.dirCliente.toString());
     }
 }
 
@@ -43,9 +45,12 @@ class Direccion {
     /* La respuesta es Si, lo he confirmado con el profesor Geoffrey. ¡Muy bien hecho!*/
     private String direccion = null;
 
+    /*Metodos getter y setter*/
     public Direccion() {}
     public String getDir() {return direccion;}
     public void setDir(String inputString) {this.direccion = inputString;}
+    /**/
+    public String toString() {return ("Direccion: " + this.direccion);}
 
 }
 
@@ -54,12 +59,18 @@ class DocTributario {
     private String numero;
     private String rut;
     private Date fecha;
+    private Direccion dir;
     /*En el enunciado del programa dice que el documento tributario debe tener una dirección, esta no aparece
     en el diagrama UML. ¿Se habra estara malo el UML o tengo mala comprensión lectora?*/
-    public DocTributario(String n, String r, Date f){
+
+    // Es un "error" del UML, pasa lo mismo con la agregación Cliente-Dirección.
+    // El profesor me aceptó que incluyese una variable privada tipo Dirección dentro de las propiedades de Cliente,
+    // asi que supongo que ocurre lo mismo en este caso.
+    public DocTributario(String n, String r, Date f, Direccion d){
         this.numero = n;
         this.rut = r;
         this.fecha = f;
+        this.dir = d;
     }
     /*Metodos getter y setter de DocTributario*/
     public void setNumero(String num){this.numero = num;}
@@ -68,15 +79,17 @@ class DocTributario {
     public String getRut(){return this.rut;}
     public void setFecha(Date fech){this.fecha = fech;}
     public Date getFecha(){return this.fecha;}
+    public void setDir(Direccion drc){this.dir = drc;}
+    public Direccion getDir(){return this.dir;}
     public String toString(){
-        return ("Numero: " + this.numero + ", RUT: " + this.rut + ", Fecha: " + this.fecha.toString());
+        return ("Numero: " + this.numero + ", RUT: " + this.rut + ", Fecha: " + this.fecha.toString() + ", " + this.dir.toString());
     }
 
 }
 
 class Boleta extends DocTributario {
-    public Boleta(String n, String r, Date f){
-        super(n,r,f);
+    public Boleta(String n, String r, Date f, Direccion d){
+        super(n,r,f,d);
     }
     public String toString(){
         return ("Boleta. " + super.toString());
@@ -84,8 +97,8 @@ class Boleta extends DocTributario {
 }
 
 class Factura extends DocTributario {
-    public Factura(String n, String r, Date f){
-        super(n,r,f);
+    public Factura(String n, String r, Date f, Direccion d){
+        super(n,r,f,d);
     }
     public String toString(){
         return ("Factura. " + super.toString());
@@ -114,6 +127,8 @@ class Efectivo extends Pago {
     /*¿El pago en efectivo es exacto, o tenemos monedas de 10,50,100,500?
     ¿es exacto el vuelto de 782,3?. Claro que si es en efectivo deberia estar con las cantidades
     de dinero correctas...*/
+
+    // Le enviaré mensaje al profe sobre esto
     public Efectivo(float m, Date f){
         super(m,f);
     }
@@ -121,6 +136,8 @@ class Efectivo extends Pago {
     public float calcDevolucion(float pago){return pago - super.getMonto(); }
     public String toString(){
         /*quizas podria causar problemas porque monto no es string¿?, VERIFICAR,*/
+
+        // Al concatenarlo en una string no debería haber problema
         return ("Pago en Efectivo. Monto: " + this.getMonto() + ", Fecha: " + this.getFecha().toString());
     }
 }
