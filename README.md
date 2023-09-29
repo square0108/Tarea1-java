@@ -1,2 +1,4 @@
 # Tarea1-java
-Prueba sobre funcionamiento de git
+**INTEGRANTES:**  
+- Guillermo Ignacio Oliva Orellana.  
+- Martin Ignacio Andres Llanos Fariña. 
