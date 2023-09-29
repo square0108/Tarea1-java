@@ -113,7 +113,7 @@ class Pago {
         this.monto = m;
         this.fecha = f;
     }
-    /*Metodos getter y setter de DocTributario*/
+    /*Metodos getter y setter de Pago*/
     public void setFecha(Date fech){this.fecha = fech;}
     public Date getFecha(){return this.fecha;}
     public void setMonto(float m){this.monto = m;}
@@ -174,4 +174,29 @@ class OrdenCompra {}
 
 class DetalleOrden {}
 
-class Articulo {}
+class Articulo {
+    private float peso;
+    private String nombre;
+    private String descripcion;
+    private float precio;
+    public Articulo(float pes, String nom, String des, float pre){
+            this.peso = pes;
+            this.nombre = nom;
+            this.descripcion = des;
+            this.precio = pre;
+    }
+    /*Metodos getter y setter de Articulo*/
+    public void setPeso(float p){this.peso = p;}
+    public float getPeso(){return this.peso;}
+    public void setNombre(String n){this.nombre = n;}
+    public String getNombre(){return this.nombre;}
+    public void setDescripcion(String d){this.descripcion = d;}
+    public String getDescripcion(){return this.descripcion;}
+    public void setPrecio(float p){this.precio = p;}
+    public float getPrecio(){return this.precio;}
+    /*Metodo to String*/
+    public String toString(){
+        return ("Nombre: " + this.nombre + "\nDescripcion: " + this.descripcion
+        + "\nPrecio: " + this.precio + "\nPeso: " + this.peso);
+    }
+}
