@@ -32,6 +32,7 @@ class Cliente {
     public Direccion getDirCliente() {return dirCliente;}
     /* Metodo toString que a su vez utiliza el toString de Direccion */
     public String toString() {
+        /*Aqui falta el toString de dircliente?? -> this.dirCliente.toString() ¿?*/
         return (this.getNombre() + ", RUT: " + this.getRut() + ", Direccion: " + this.dirCliente);
     }
 }
@@ -67,6 +68,9 @@ class DocTributario {
     public String getRut(){return this.rut;}
     public void setFecha(Date fech){this.fecha = fech;}
     public Date getFecha(){return this.fecha;}
+    public String toString(){
+        return ("Numero: " + this.numero + ", RUT: " + this.rut + ", Fecha: " + this.fecha.toString());
+    }
 
 }
 
@@ -74,23 +78,80 @@ class Boleta extends DocTributario {
     public Boleta(String n, String r, Date f){
         super(n,r,f);
     }
+    public String toString(){
+        return ("Boleta. " + super.toString());
+    }
 }
 
 class Factura extends DocTributario {
     public Factura(String n, String r, Date f){
         super(n,r,f);
     }
+    public String toString(){
+        return ("Factura. " + super.toString());
+    }
 }
 
 class Pago {
     /*Pago se divide en tres tipos de Pago: Efectivo, Transferencia, y Tarjeta*/
+    private float monto;
+    private Date fecha;
+    public Pago(float m, Date f){
+        this.monto = m;
+        this.fecha = f;
+    }
+    /*Metodos getter y setter de DocTributario*/
+    public void setFecha(Date fech){this.fecha = fech;}
+    public Date getFecha(){return this.fecha;}
+    public void setMonto(float m){this.monto = m;}
+    public float getMonto(){return this.monto;}
+    public String toString(){
+        return ("Pago. Monto: " + this.getMonto() + ", Fecha: " + this.getFecha().toString());
+    }
 }
 
-class Efectivo extends Pago {}
+class Efectivo extends Pago {
+    /*¿El pago en efectivo es exacto, o tenemos monedas de 10,50,100,500?
+    ¿es exacto el vuelto de 782,3?. Claro que si es en efectivo deberia estar con las cantidades
+    de dinero correctas...*/
+    public Efectivo(float m, Date f){
+        super(m,f);
+    }
+    /*Claramente hay que modificar este metodo, es solo para probar*/
+    public float calcDevolucion(float pago){return pago - super.getMonto(); }
+    public String toString(){
+        /*quizas podria causar problemas porque monto no es string¿?, VERIFICAR,*/
+        return ("Pago en Efectivo. Monto: " + this.getMonto() + ", Fecha: " + this.getFecha().toString());
+    }
+}
 
-class Transferencia extends Pago {}
+class Transferencia extends Pago {
+    private String banco;
+    private String numCuenta;
+    public Transferencia(float m, Date f,String b, String numC){
+        super(m,f);
+        this.banco = b;
+        this.numCuenta= numC;
+    }
+    public String toString(){
+        return ("Pago con Transferencia. Monto: " + this.getMonto() + ", Fecha: " + this.getFecha().toString()
+        + ", Banco: " + this.banco + ", Numero de Cuenta: " + numCuenta);
+    }
+}
 
-class Tarjeta extends Pago {}
+class Tarjeta extends Pago {
+    private String tipo;
+    private String numTransaccion;
+    public Tarjeta(float m, Date f, String t, String numT){
+        super(m,f);
+        this.tipo = t;
+        this.numTransaccion = numT;
+    }
+    public String toString(){
+        return ("Pago con Tarjeta de" + this.tipo +". Monto: " + this.getMonto() + ", Fecha: "
+                + this.getFecha().toString() + ", Numero de transaccion: " + this.numTransaccion);
+    }
+}
 
 class OrdenCompra {}
 
