@@ -10,7 +10,7 @@ public class Main {
         Direccion d1 = new Direccion("Arboledas Verdes 420");
         Cliente cordero = new Cliente("Pepe","21.165.368-K",d1);
         Cliente llama = new Cliente("Seth","22.22.3.4.5",d1);
-        System.out.println(d1.toString());
+        System.out.println(d1);
         System.out.println(cordero.toString());
         System.out.println(llama.toString());
 
@@ -71,7 +71,6 @@ class Direccion {
 
     /*Puede que esto sea innecessario, pero me guie por el PPT que describe las Cardinalidades de UML, asi que Direccion
     * ahora tiene un ArrayList con todos los clientes que poseen esta direccion. */
-
     @Deprecated
     public String stringDeClientes(ArrayList<Cliente> ar) {
         /*Esta funcion es solo para concatenar los nombres de los clientes con la misma direccion, dentro de toString().
@@ -174,7 +173,7 @@ class Efectivo extends Pago {
     public Efectivo(float m, Date f){
         super(m,f);
     }
-    /*Claramente hay que modificar este metodo, es solo para probar*/
+    /*todo Claramente hay que modificar este metodo, es solo para probar*/
     public float calcDevolucion(float pago){return pago - super.getMonto(); }
     public String toString(){
         /*quizas podria causar problemas porque monto no es string¿?, VERIFICAR,*/
@@ -218,11 +217,13 @@ class OrdenCompra {
     private Date fecha;
     private String estado;
     private Cliente comprador;
+    private DetalleOrden detalleOrden;
     private DocTributario documento;
     private ArrayList<Pago> arrayPagos;
     public OrdenCompra(Date f, Cliente c){
         this.fecha = f;
         this.comprador = c;
+        /*Al crear una nueva orden de compra, se genera automáticamente un nuevo Documento Tributario*/
         this.documento = new DocTributario(comprador.getNombre(),comprador.getRut(),this.fecha,comprador.getDirCliente());
         // No tengo claro que funcion cumple Estado en el problema.
         this.estado = null;
@@ -239,7 +240,38 @@ class OrdenCompra {
 
 }
 
-class DetalleOrden {}
+class DetalleOrden {
+    private Articulo articulo;
+    private int cantidad;
+    /*Creamos un detalle de orden especificando el articulo comprado y el numero de unidades de este*/
+    public DetalleOrden(Articulo art, int unidades) {
+        this.articulo = art;
+        this.cantidad = unidades;
+    }
+
+    /* **Metodos getter y setter**/
+
+    public Articulo getArticulo() {return this.articulo;}
+    public void setArticulo(Articulo nuevoArticulo) {this.articulo = nuevoArticulo;}
+    public int getCantidad() {return this.cantidad;}
+    public void setCantidad(int nuevaCantidad) {this.cantidad = nuevaCantidad;}
+
+    /* ***************************/
+
+    /*¿Dado que el precio puede ser un float (valor decimal), consideramos todos los return type como floats...?*/
+    /* todo: ¿El metodo calcIVA() calcula el IVA de la compra total, o de una sola unidad?*/
+    public float calcPrecio() {return cantidad*articulo.getPrecio();}
+    public float calcPrecioSinIVA() {
+        /*El IVA en Chile es 19%, el cual viene incluido en el precio de cada articulo*/
+        return (float) ((cantidad*articulo.getPrecio())/1.19);
+    }
+    public float calcIVA() {return calcPrecio()-calcPrecioSinIVA();}
+    public float calcPeso() {return (cantidad*articulo.getPeso());}
+    @Override
+    public String toString() {
+        return (articulo.toString() + ", Unidades: " + this.cantidad);
+    }
+}
 
 class Articulo {
     private float peso;
