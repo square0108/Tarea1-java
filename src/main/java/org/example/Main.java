@@ -8,11 +8,12 @@ public class Main {
 
         System.out.println("Yo soy el verdadero Martin Llanos");
         Direccion d1 = new Direccion("Arboledas Verdes 420");
-        Cliente cordero = new Cliente("Pepe","21.165.368-K",d1);
-        Cliente llama = new Cliente("Seth","22.22.3.4.5",d1);
+        Cliente miCordero = new Cliente("Cordero","21.165.368-K",d1);
+        Cliente miLlama = new Cliente("Llama","22.22.3.4.5",d1);
+        Articulo miPan = new Articulo((float)32.94, "Pancito","Es un pancito.", (float)300);
         System.out.println(d1);
-        System.out.println(cordero.toString());
-        System.out.println(llama.toString());
+        System.out.println(miCordero);
+        System.out.println(miLlama);
 
     }
 }
@@ -173,7 +174,7 @@ class Efectivo extends Pago {
     public Efectivo(float m, Date f){
         super(m,f);
     }
-    /*todo Claramente hay que modificar este metodo, es solo para probar*/
+    /* todo: Claramente hay que modificar este metodo, es solo para probar*/
     public float calcDevolucion(float pago){return pago - super.getMonto(); }
     public String toString(){
         /*quizas podria causar problemas porque monto no es string¿?, VERIFICAR,*/
@@ -212,30 +213,99 @@ class Tarjeta extends Pago {
 }
 
 class OrdenCompra {
-    // Tengo varias confusiones aqui. Se supone que el documento tributario asociado a una orden de compra se emite al mismo tiempo (misma fecha entre ambos), y es solo uno por cada orden?
-    // Una agregacion tiene permitido crear objetos con new?
+    /* Tengo varias confusiones aqui. ¿Se supone que el documento tributario asociado a una orden de compra se emite al mismo tiempo (misma fecha entre ambos), y es solo uno por cada orden?
+    /* todo: ¿Una aggregation tiene permitido crear objetos con new? */
     private Date fecha;
     private String estado;
-    private Cliente comprador;
-    private DetalleOrden detalleOrden;
-    private DocTributario documento;
+    private Cliente cliente;
+
+    /* Se crea un ArrayList<DetalleOrden> con el proposito de que el cliente tenga la posibilidad de modificar su orden, o comprar varios tipos de articulos.
+    *  Cabe recalcar que OrdenCompra maneja varios DetalleOrden, pero cada DetalleOrden maneja un solo tipo de articulo. */
+    private ArrayList<DetalleOrden> arrayDetalle;
+    private DocTributario documentoTributario;
+    /* arrayPagos funciona como un "historial" de los pagos, en caso de que estos se realizen progresivamente,
+    *  en vez de pagar toda la orden a la vez. */
     private ArrayList<Pago> arrayPagos;
-    public OrdenCompra(Date f, Cliente c){
-        this.fecha = f;
-        this.comprador = c;
-        /*Al crear una nueva orden de compra, se genera automáticamente un nuevo Documento Tributario*/
-        this.documento = new DocTributario(comprador.getNombre(),comprador.getRut(),this.fecha,comprador.getDirCliente());
-        // No tengo claro que funcion cumple Estado en el problema.
-        this.estado = null;
-        this.arrayPagos = new ArrayList<>();
+
+    /**
+     * Constructor de OrdenCompra.
+     * @param f Fecha en la que se emite la orden.
+     * @param c Cliente que crea la orden.
+     * @param art Artículo que se desea comprar. Para crear la orden se puede elegir solo uno, para agregar más
+     *            articulos se deben usar los metodos de OrdenCompra.
+     * @param unidades Número de articulos del mismo tipo que se desea comprar.
+     */
+    public OrdenCompra(Date f, Cliente c, Articulo art, int unidades){
+        fecha = f;
+        cliente = c;
+        documentoTributario = new DocTributario(cliente.getNombre(),cliente.getRut(),this.fecha,cliente.getDirCliente());
+        estado = null; /* TODO: designar los distintos Estados. */
+        arrayPagos = new ArrayList<>();
+        arrayDetalle = new ArrayList<>();
+        arrayDetalle.add(new DetalleOrden(art, unidades));
     }
 
     /* **Metodos getter y setter**/
 
+    public Date getFecha() {return this.fecha;}
+    public void setFecha(Date nuevaFecha) {this.fecha = nuevaFecha;}
+    public String getEstado() {return this.estado;}
+    public void setEstado(String s) {this.estado = s;}
+    public Cliente getComprador() {return this.cliente;}
+    public void setComprador(Cliente nuevoCliente) {this.cliente = nuevoCliente;}
+
     /* ***************************/
 
-    public void addPago(Pago nuevoPago) {
+    /**
+     * nuevoArticulo se utiliza cuando se desean agregar articulos adicionales a la misma orden.
+     * @param art Articulo nuevo a agregar a la orden
+     * @param num Unidades del articulo nuevo
+     */
+    public void nuevoArticulo(Articulo art, int num) {
+        arrayDetalle.add(new DetalleOrden(art, num));
+    }
+
+    /**
+     * realizarPago agrega pagos que pueden realizarse progresivamente hasta pagar la orden.
+     * TODO: Verificar si intentar realizar un pago nuevo sobre una orden completa (todos los detalles pagados) debe tirar una exception?
+     * @param nuevoPago Pago sobre la orden
+     */
+    public void realizarPago(Pago nuevoPago) {
         arrayPagos.add(nuevoPago);
+    }
+
+    /**
+     *  Metodos de cálculo de precio: Estos calculan el precio de LA ORDEN COMPLETA, se debe acceder a los metodos
+     *  calcPrecio de los detalles individuales si se desea saber el precio incluido en estos.
+     *  */
+
+    public float calcPrecio(){
+        float num = (float)0;
+        for (DetalleOrden detalleOrden : arrayDetalle) {
+            num = num + detalleOrden.calcPrecio();
+        }
+        return num;
+    }
+    public float calcPrecioSinIVA() {
+        float num = (float)0;
+        for (DetalleOrden detalleOrden : arrayDetalle) {
+            num = num + detalleOrden.calcPrecioSinIVA();
+        }
+        return num;
+    }
+    public float calcIVA() {
+        float num = (float)0;
+        for (DetalleOrden detalleOrden : arrayDetalle) {
+            num = num + detalleOrden.calcIVA();
+        }
+        return num;
+    }
+    public float calcPeso() {
+        float num = (float)0;
+        for (DetalleOrden detalleOrden : arrayDetalle) {
+            num = num + detalleOrden.calcPeso();
+        }
+        return num;
     }
 
 }
@@ -284,7 +354,9 @@ class Articulo {
             this.descripcion = des;
             this.precio = pre;
     }
+
     /*Metodos getter y setter de Articulo*/
+
     public void setPeso(float p){this.peso = p;}
     public float getPeso(){return this.peso;}
     public void setNombre(String n){this.nombre = n;}
@@ -293,6 +365,7 @@ class Articulo {
     public String getDescripcion(){return this.descripcion;}
     public void setPrecio(float p){this.precio = p;}
     public float getPrecio(){return this.precio;}
+
     /*Metodo to String*/
     public String toString(){
         return ("Nombre: " + this.nombre + "\nDescripcion: " + this.descripcion
