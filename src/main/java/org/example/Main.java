@@ -4,16 +4,20 @@ import java.util.ArrayList;
 // nota: Teams del ayudante: Emilio Ramos Montesino.
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args){
 
         System.out.println("Yo soy el verdadero Martin Llanos");
         Direccion d1 = new Direccion("Arboledas Verdes 420");
         Cliente miCordero = new Cliente("Cordero","21.165.368-K",d1);
         Cliente miLlama = new Cliente("Llama","22.22.3.4.5",d1);
         Articulo miPan = new Articulo((float)32.94, "Pancito","Es un pancito.", (float)300);
+        Date estaFecha = new Date();
+        OrdenCompra orden = new OrdenCompra(miCordero, miPan, 12, DocTributario.BOLETA);
+
         System.out.println(d1);
         System.out.println(miCordero);
         System.out.println(miLlama);
+        System.out.println(orden.toString());
 
     }
 }
@@ -92,8 +96,10 @@ class Direccion {
 
 }
 
-class DocTributario {
+abstract class DocTributario {
     /*Dos tipos de Documentos Tributarios: Boleta, Factura*/
+    public static final int BOLETA = 0, FACTURA = 1;
+
     private String numero;
     private String rut;
     private Date fecha;
@@ -104,10 +110,10 @@ class DocTributario {
     // Es un "error" del UML, pasa lo mismo con la agregación Cliente-Dirección.
     // El profesor me aceptó que incluyese una variable privada tipo Dirección dentro de las propiedades de Cliente,
     // asi que supongo que ocurre lo mismo en este caso.
-    public DocTributario(String n, String r, Date f, Direccion d){
+    public DocTributario(String n, String r, Direccion d){
         this.numero = n;
         this.rut = r;
-        this.fecha = f;
+        this.fecha = new Date();
         this.dirDoc = d;
     }
     /*Metodos getter y setter de DocTributario*/
@@ -126,8 +132,8 @@ class DocTributario {
 }
 
 class Boleta extends DocTributario {
-    public Boleta(String n, String r, Date f, Direccion d){
-        super(n,r,f,d);
+    public Boleta(String n, String r, Direccion d){
+        super(n,r,d);
     }
     public String toString(){
         return ("Boleta. " + super.toString());
@@ -135,18 +141,19 @@ class Boleta extends DocTributario {
 }
 
 class Factura extends DocTributario {
-    public Factura(String n, String r, Date f, Direccion d){
-        super(n,r,f,d);
+    public Factura(String n, String r, Direccion d){
+        super(n,r,d);
     }
     public String toString(){
         return ("Factura. " + super.toString());
     }
 }
 
-class Pago {
+abstract class Pago {
     /*Pago se divide en tres tipos de Pago: Efectivo, Transferencia, y Tarjeta*/
     private float monto;
     private Date fecha;
+    private OrdenCompra orden;
     public Pago(float m, Date f){
         this.monto = m;
         this.fecha = f;
@@ -213,36 +220,43 @@ class Tarjeta extends Pago {
 }
 
 class OrdenCompra {
-    /* Tengo varias confusiones aqui. ¿Se supone que el documento tributario asociado a una orden de compra se emite al mismo tiempo (misma fecha entre ambos), y es solo uno por cada orden?
-    /* todo: ¿Una aggregation tiene permitido crear objetos con new? */
+    /* Estas constantes definen los distintos estados que puede tener una orden, solo se utilizan internamente para cambiar de estado. */
+    public static final int PENDIENTE = 0, PAGO_PARCIAL = 1, FINALIZADO = 2;
+
     private Date fecha;
     private String estado;
     private Cliente cliente;
-
+    private DocTributario docTributario;
     /* Se crea un ArrayList<DetalleOrden> con el proposito de que el cliente tenga la posibilidad de modificar su orden, o comprar varios tipos de articulos.
     *  Cabe recalcar que OrdenCompra maneja varios DetalleOrden, pero cada DetalleOrden maneja un solo tipo de articulo. */
     private ArrayList<DetalleOrden> arrayDetalle;
-    private DocTributario documentoTributario;
     /* arrayPagos funciona como un "historial" de los pagos, en caso de que estos se realizen progresivamente,
     *  en vez de pagar toda la orden a la vez. */
     private ArrayList<Pago> arrayPagos;
 
     /**
-     * Constructor de OrdenCompra.
-     * @param f Fecha en la que se emite la orden.
+     * Constructor de OrdenCompra. Por defecto la orden se emite en la fecha actual.
      * @param c Cliente que crea la orden.
-     * @param art Artículo que se desea comprar. Para crear la orden se puede elegir solo uno, para agregar más
+     * @param a Artículo que se desea comprar. Para crear la orden se puede elegir solo uno, para agregar más
      *            articulos se deben usar los metodos de OrdenCompra.
-     * @param unidades Número de articulos del mismo tipo que se desea comprar.
+     * @param u Número de articulos del mismo tipo que se desea comprar.
+     * @param docType Tipo de documento tributario que se desea. Se definen dos constantes públicas en la clase
+     *               DocTributario: BOLETA = 0, FACTURA = 1.
      */
-    public OrdenCompra(Date f, Cliente c, Articulo art, int unidades){
-        fecha = f;
-        cliente = c;
-        documentoTributario = new DocTributario(cliente.getNombre(),cliente.getRut(),this.fecha,cliente.getDirCliente());
-        estado = null; /* TODO: designar los distintos Estados. */
-        arrayPagos = new ArrayList<>();
-        arrayDetalle = new ArrayList<>();
-        arrayDetalle.add(new DetalleOrden(art, unidades));
+    public OrdenCompra(Cliente c, Articulo a, int u, int docType){
+        this.fecha = new Date();
+        this.cliente = c;
+        switch (docType) {
+            case DocTributario.BOLETA -> this.docTributario = new Boleta("numero de prueba", c.getRut(), c.getDirCliente());
+            case DocTributario.FACTURA -> this.docTributario = new Factura("numero de prueba", c.getRut(), c.getDirCliente());
+            default -> {
+            }
+        }
+
+        setEstado(PENDIENTE);
+        this.arrayPagos = new ArrayList<>();
+        this.arrayDetalle = new ArrayList<>();
+        this.arrayDetalle.add(new DetalleOrden(a, u));
     }
 
     /* **Metodos getter y setter**/
@@ -251,8 +265,9 @@ class OrdenCompra {
     public void setFecha(Date nuevaFecha) {this.fecha = nuevaFecha;}
     public String getEstado() {return this.estado;}
     public void setEstado(String s) {this.estado = s;}
-    public Cliente getComprador() {return this.cliente;}
-    public void setComprador(Cliente nuevoCliente) {this.cliente = nuevoCliente;}
+    public Cliente getCliente() {return this.cliente;}
+    public void setCliente(Cliente nuevoCliente) {this.cliente = nuevoCliente;}
+
 
     /* ***************************/
 
@@ -306,6 +321,21 @@ class OrdenCompra {
             num = num + detalleOrden.calcPeso();
         }
         return num;
+    }
+
+    /**
+     * Cambia el estado actual del pedido.
+     * @param e Entero que utiliza las constantes definidas al inicio de la clase OrdenCompra.
+     *          PENDIENTE = 0, PAGO_PARCIAL = 1, FINALIZADO = 2.
+     */
+    public void setEstado(int e) {
+        switch (e) {
+            case PENDIENTE -> this.estado = "Orden esperando pago";
+            case PAGO_PARCIAL -> this.estado = "Orden pagada parcialmente";
+            case FINALIZADO -> this.estado = "Orden finalizada";
+            default -> {
+            }
+        }
     }
 
 }
@@ -370,5 +400,11 @@ class Articulo {
     public String toString(){
         return ("Nombre: " + this.nombre + "\nDescripcion: " + this.descripcion
         + "\nPrecio: " + this.precio + "\nPeso: " + this.peso);
+    }
+}
+
+class InvalidInputException extends Exception{
+    public InvalidInputException(String errorMessage){
+        super(errorMessage);
     }
 }
