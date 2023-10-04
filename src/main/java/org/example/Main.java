@@ -17,7 +17,7 @@ public class Main {
         System.out.println(d1);
         System.out.println(miCordero);
         System.out.println(miLlama);
-        System.out.println(orden.toString());
+        System.out.println(estaFecha);
 
     }
 }
@@ -26,6 +26,7 @@ class Cliente {
     private String nombre;
     private String rut;
     private Direccion dirCliente;
+    // arraylist ordencompra
 
     public Cliente(String n, String r, Direccion d) {
         this.nombre = n;
@@ -328,6 +329,7 @@ class OrdenCompra {
      * @param e Entero que utiliza las constantes definidas al inicio de la clase OrdenCompra.
      *          PENDIENTE = 0, PAGO_PARCIAL = 1, FINALIZADO = 2.
      */
+
     public void setEstado(int e) {
         switch (e) {
             case PENDIENTE -> this.estado = "Orden esperando pago";
