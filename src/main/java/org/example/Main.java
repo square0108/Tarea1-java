@@ -1,40 +1,60 @@
 package org.example;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.ArrayList;
 import java.util.Objects;
 // nota: Teams del ayudante: Emilio Ramos Montesino.
 
 public class Main {
-    public static void main(String[] args){
+    public static void main(String[] args) throws ParseException {
+        // Ojo con el throws ParseException, esta por el commando parse
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+        // Generamos fechas
+        Date date1 = formatter.parse("10-10-2033");
+        Date date2 = formatter.parse("05-03-1997");
+        Date date3 = formatter.parse("28-08-1983");
+        Date date4 = formatter.parse("11-09-1614");
+        // Primero Generamos distintos articulos
+        Articulo queso = new Articulo((float)40,"Queso","Es amarillo, sabroso y apestoso.",(float)100);
+        Articulo jamon = new Articulo((float)35,"Jamon","Hecho de una cantidad indeterminada de cerdos.",(float)150);
+        Articulo pan = new Articulo((float)60,"Pan","una marraqueta son solo dos dientes.",(float)50);
+        Articulo cocacola = new Articulo((float)1000,"Coca-cola","Dulce, muy dulce... es mejor el agua.",(float)1200);
+        Articulo item = new Articulo((float)666,"Item sospechoso","Sientes el impulso de comprarlo, pero no sabes si es lo correcto.",(float)9999);
+        //Generamos Direcciones
+        Direccion direccion1 = new Direccion("Avenida Siempreviva, 742");
+        Direccion direccion2 = new Direccion("Callejon Diagon");
+        Direccion direccion3 = new Direccion("Plaza de armas, banca 2");
+        // Ahora Generamos clientes
+        Cliente cliente1 = new Cliente("Homero Simpson", "10456354-2", direccion1);
+        Cliente cliente2 = new Cliente("Bart Simpson", "213456554-7", direccion1);
+        // todo: probar con dirección null
+        Cliente cliente3 = new Cliente("Harry Potter", "209774345-5", direccion2);
+        Cliente cliente4 = new Cliente("Don Sergio", "0", direccion3);
+        //Generamos Detalles de Orden
+        DetalleOrden detalleOrden1 = new DetalleOrden(queso, 50);
+        DetalleOrden detalleOrden2 = new DetalleOrden(jamon, 43);
+        DetalleOrden detalleOrden3 = new DetalleOrden(cocacola, 3);
+        DetalleOrden detalleOrden4 = new DetalleOrden(item, 0);
+        //Generamos Ordenes de Compra
+        OrdenCompra ordenCompra1 = new OrdenCompra(cliente1, pan, 43,1);
+        OrdenCompra ordenCompra2 = new OrdenCompra(cliente2, queso, 15,0);
+        OrdenCompra ordenCompra3 = new OrdenCompra(cliente4, item, 12,0);
+        OrdenCompra ordenCompra4 = new OrdenCompra(cliente1, cocacola, 2,1);
+        OrdenCompra ordenCompra5 = new OrdenCompra(cliente3, jamon, 0,0);
+        OrdenCompra ordenCompra6 = new OrdenCompra(cliente2, pan, -1,-1);
+        //Pagamos algunas cosas
+        Efectivo efectivo1 = new Efectivo((float)10, date1,ordenCompra1);
+        Efectivo efectivo2 = new Efectivo((float)100200, date2,ordenCompra1);
+        Efectivo efectivo3 = new Efectivo((float)5000, date4,ordenCompra1);
+        Tarjeta tarjeta1 = new Tarjeta((float)4573, date1,ordenCompra1,"Debito","234");
+        Tarjeta tarjeta2 = new Tarjeta((float)7645, date3,ordenCompra1,"Credito","1654");
+        Tarjeta tarjeta3 = new Tarjeta((float)3455, date4,ordenCompra1,"Debito","2341");
+        Transferencia transferencia1 = new Transferencia((float)6583, date1,ordenCompra1,"BBVA","754");
+        Transferencia transferencia2 = new Transferencia((float)2268, date2,null,"Banco Estado","362");
+        Transferencia transferencia3 = new Transferencia((float)3457, date3,ordenCompra1,"Banco de Chile","903");
+        //Hacemos pruebas
 
-        Direccion d1 = new Direccion("Arboledas Verdes 420");
-        Cliente miCordero = new Cliente("Cordero","21.165.368-K",d1);
-        Cliente miLlama = new Cliente("Llama","22.22.3.4.5",d1);
-        Articulo miPan = new Articulo((float)32.94, "Pancito","Es un pancito.", (float)300);
-        Articulo miQueso = new Articulo((float)12, "Queso","Sirve para echarselo al pan.", (float)100);
-        Date estaFecha = new Date();
-        OrdenCompra orden = new OrdenCompra(miCordero, miPan, 12, DocTributario.BOLETA);
-        orden.nuevoArticulo(miQueso,10);
-        System.out.println("Precio de la orden: " + orden.calcPrecio());
-        orden.nuevoArticulo(miPan,10);
-        System.out.println("Precio de la orden: " + orden.calcPrecio());
-
-        Transferencia pago2 = new Transferencia(1000,estaFecha, orden, "BBVA", "123123");
-
-        orden.realizarPago(pago2);
-        System.out.println(orden.toString());
-        orden.realizarPago(pago2);
-        System.out.println(orden.toString());
-        Transferencia pago3 = new Transferencia(6100,estaFecha, orden, "BBVA", "123123");
-        System.out.println(orden.toString());
-        Efectivo pago1 = new Efectivo(100,estaFecha,orden);
-        System.out.println(orden.toString());
-        System.out.println(pago1.calcDevolucion());
-
-        System.out.println(d1);
-        System.out.println(miCordero);
-        System.out.println(miLlama);
-        System.out.println(estaFecha);
     }
 }
 
@@ -290,6 +310,8 @@ class Tarjeta extends Pago {
      * @param m Monto del pago hecho con la tarjeta.
      * @param f Fecha del pago hecho con la tarjeta.
      * @param o Orden de compra en donde se hace el pago.
+     * @param t Tipo de tarjeta (Debito o Credito).
+     * @param numT Numero de transaccion.
      */
     public Tarjeta(float m, Date f,OrdenCompra o, String t, String numT){
         super(m,f,o);
