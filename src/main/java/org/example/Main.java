@@ -1,6 +1,7 @@
 package org.example;
 import java.util.Date;
 import java.util.ArrayList;
+import java.util.Objects;
 // nota: Teams del ayudante: Emilio Ramos Montesino.
 
 public class Main {
@@ -13,7 +14,6 @@ public class Main {
         Articulo miQueso = new Articulo((float)12, "Queso","Sirve para echarselo al pan.", (float)100);
         Date estaFecha = new Date();
         OrdenCompra orden = new OrdenCompra(miCordero, miPan, 12, DocTributario.BOLETA);
-
         orden.nuevoArticulo(miQueso,10);
         System.out.println("Precio de la orden: " + orden.calcPrecio());
         orden.nuevoArticulo(miPan,10);
@@ -30,10 +30,11 @@ public class Main {
         Efectivo pago1 = new Efectivo(100,estaFecha,orden);
         System.out.println(orden.toString());
         System.out.println(pago1.calcDevolucion());
-        System.out.println(orden);
-        Efectivo ultimo = new Efectivo(550, new Date(), orden);
-        System.out.println(orden);
-        System.out.println(ultimo.calcDevolucion());
+
+        System.out.println(d1);
+        System.out.println(miCordero);
+        System.out.println(miLlama);
+        System.out.println(estaFecha);
     }
 }
 
@@ -198,18 +199,20 @@ abstract class Pago {
 }
 
 class Efectivo extends Pago {
+    /*¿El pago en efectivo es exacto, o tenemos monedas de 10,50,100,500?
+    ¿es exacto el vuelto de 782,3?. Claro que si es en efectivo deberia estar con las cantidades
+    de dinero correctas...*/
+
+    // Le enviaré mensaje al profe sobre esto
     public Efectivo(float m, Date f, OrdenCompra o){
         super(m,f,o);
     }
-    public int calcDevolucion(){
-        int ultimoIndex = super.getOrdenCompra().getArrayPagos().size()-1;
-
-        // Si es que el ultimo pago fue en efectivo y la orden esta pagada
-        if (ultimoIndex < 0) return 0; // en caso de array vacio
-        else if (this == super.getOrdenCompra().getArrayPagos().get(ultimoIndex) && super.getOrdenCompra().getEstado().equals("FINALIZADO")){
-            return  Math.round(getOrdenCompra().SumaPagos() - this.getOrdenCompra().calcPrecio());
-        }
-        else{
+    /* todo: Claramente hay que modificar este metodo, es solo para probar*/
+    public float calcDevolucion(){
+        // SI es que el ultimo pago fue en efectivo y la orden esta pagada
+        if (this == this.getOrdenCompra().getUltimoPago() && this.getOrdenCompra().getEstado() == "Orden finalizada"){
+            return  getOrdenCompra().getPagoTotal() - this.getOrdenCompra().calcPrecio();
+        }else{
             return 0;
         }
     }
@@ -251,12 +254,17 @@ class Tarjeta extends Pago {
 
 class OrdenCompra {
     /* Estas constantes definen los distintos estados que puede tener una orden, solo se utilizan internamente para cambiar de estado. */
+    public static final int PENDIENTE = 0, PAGO_PARCIAL = 1, FINALIZADO = 2;
 
     private Date fecha;
     private String estado;
     private Cliente cliente;
     private DocTributario docTributario;
+    /* Se crea un ArrayList<DetalleOrden> con el proposito de que el cliente tenga la posibilidad de modificar su orden, o comprar varios tipos de articulos.
+    *  Cabe recalcar que OrdenCompra maneja varios DetalleOrden, pero cada DetalleOrden maneja un solo tipo de articulo. */
     private ArrayList<DetalleOrden> arrayDetalle;
+    /* arrayPagos funciona como un "historial" de los pagos, en caso de que estos se realizen progresivamente,
+    *  en vez de pagar toda la orden a la vez. */
     private ArrayList<Pago> arrayPagos;
 
     /**
@@ -278,7 +286,7 @@ class OrdenCompra {
             }
         }
 
-        this.estado = "PENDIENTE";
+        setEstado(PENDIENTE);
         this.arrayPagos = new ArrayList<>();
         this.arrayDetalle = new ArrayList<>();
         this.arrayDetalle.add(new DetalleOrden(a, u));
@@ -292,12 +300,8 @@ class OrdenCompra {
     public void setEstado(String s) {this.estado = s;}
     public Cliente getCliente() {return this.cliente;}
     public void setCliente(Cliente nuevoCliente) {this.cliente = nuevoCliente;}
-    public DocTributario getDocTributario() {return docTributario;}
-    public void setDocTributario(DocTributario docTributario) {this.docTributario = docTributario;}
-    public ArrayList<DetalleOrden> getArrayDetalle() {return arrayDetalle;}
-    public void setArrayDetalle(ArrayList<DetalleOrden> arrayDetalle) {this.arrayDetalle = arrayDetalle;}
-    public ArrayList<Pago> getArrayPagos() {return arrayPagos;}
-    public void setArrayPagos(ArrayList<Pago> arrayPagos) {this.arrayPagos = arrayPagos;}
+    // todo: Gestionar error de getultimopago en caso de arraylist vacia
+    public Pago getUltimoPago() {return this.arrayPagos.get(this.arrayPagos.size()-1);}
 
 
     /* ***************************/
@@ -318,23 +322,22 @@ class OrdenCompra {
      */
     public void realizarPago(Pago nuevoPago) {
         // Verificamos si la orden esta pagada y si el pago es distinto de 0
-        if (estado.equals("FINALIZADO")) {
-            System.out.println("Orden finalizada. No se aceptan mas pagos.");
-        }
-        else if (nuevoPago.getMonto() == 0 || arrayPagos.contains(nuevoPago)) {
-            System.out.println("El pago: " + nuevoPago + "\n no es valido. Verifique que el monto sea positivo o que no se haya reutilizando un pago ya hecho.");
-        }
-        else {
-            // aqui esto asociando los dos
-            // Solo una vez que el pago ingresado pasa los dos checks anteriores (la orden no ha finalizado, Y, el pago no es ni cero ni repetido) entonces es posible que el estado de la orden cambie.
-            arrayPagos.add(nuevoPago);
-            nuevoPago.setOrdenCompra(this);
+        if(!Objects.equals(this.estado, "Orden finalizada") && nuevoPago.getMonto() != 0){
+            // Verificamos si el pago se encuentra ya en la array
+            if(!arrayPagos.contains(nuevoPago)){
+                // aqui esto asociando los dos
+                arrayPagos.add(nuevoPago);
+                nuevoPago.setOrdenCompra(this);
 
-            if (this.SumaPagos() >= this.calcPrecio()){
-                this.estado = "FINALIZADO";
-            }
-            else{
-                this.estado = "PAGO PARCIAL";
+                if (0 < this.getPagoTotal()){
+                    this.setEstado(PAGO_PARCIAL);
+                    if(this.calcPrecio() <= this.getPagoTotal()){
+                        this.setEstado(FINALIZADO);
+                    }
+                }else{
+                    // Supongo que esta aqui porsiacaso
+                    this.setEstado(PENDIENTE);
+                }
             }
         }
     }
@@ -374,9 +377,24 @@ class OrdenCompra {
     }
 
     /**
+     * Cambia el estado actual del pedido.
+     * @param e Entero que utiliza las constantes definidas al inicio de la clase OrdenCompra.
+     *          PENDIENTE = 0, PAGO_PARCIAL = 1, FINALIZADO = 2.
+     */
+
+    public void setEstado(int e) {
+        switch (e) {
+            case PENDIENTE -> this.estado = "Orden esperando pago";
+            case PAGO_PARCIAL -> this.estado = "Orden pagada parcialmente";
+            case FINALIZADO -> this.estado = "Orden finalizada";
+            default -> {
+            }
+        }
+    }
+    /**
      * Calcula cual es el monto total pagado hasta el momento
      */
-    public float SumaPagos(){
+    public float getPagoTotal(){
         float num = 0;
         for (Pago pago : arrayPagos) {
             num = num + pago.getMonto();
@@ -386,7 +404,7 @@ class OrdenCompra {
     /* toString de OrdenCompra*/
     public String toString(){
         return ("Fecha: " + this.fecha + ", Estado: " + this.estado + ", Monto a pagar: " + this.calcPrecio()
-        + ", Monto pagado: " + this.SumaPagos());
+        + ", Monto pagado: " + this.getPagoTotal());
     }
 
 }
