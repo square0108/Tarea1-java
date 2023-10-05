@@ -1,24 +1,40 @@
 package org.example;
 import java.util.Date;
 import java.util.ArrayList;
+import java.util.Objects;
 // nota: Teams del ayudante: Emilio Ramos Montesino.
 
 public class Main {
     public static void main(String[] args){
 
-        System.out.println("Yo soy el verdadero Martin Llanos");
         Direccion d1 = new Direccion("Arboledas Verdes 420");
         Cliente miCordero = new Cliente("Cordero","21.165.368-K",d1);
         Cliente miLlama = new Cliente("Llama","22.22.3.4.5",d1);
         Articulo miPan = new Articulo((float)32.94, "Pancito","Es un pancito.", (float)300);
+        Articulo miQueso = new Articulo((float)12, "Queso","Sirve para echarselo al pan.", (float)100);
         Date estaFecha = new Date();
         OrdenCompra orden = new OrdenCompra(miCordero, miPan, 12, DocTributario.BOLETA);
+        orden.nuevoArticulo(miQueso,10);
+        System.out.println("Precio de la orden: " + orden.calcPrecio());
+        orden.nuevoArticulo(miPan,10);
+        System.out.println("Precio de la orden: " + orden.calcPrecio());
+
+        Transferencia pago2 = new Transferencia(1000,estaFecha, orden, "BBVA", "123123");
+
+        orden.realizarPago(pago2);
+        System.out.println(orden.toString());
+        orden.realizarPago(pago2);
+        System.out.println(orden.toString());
+        Transferencia pago3 = new Transferencia(6100,estaFecha, orden, "BBVA", "123123");
+        System.out.println(orden.toString());
+        Efectivo pago1 = new Efectivo(100,estaFecha,orden);
+        System.out.println(orden.toString());
+        System.out.println(pago1.calcDevolucion());
 
         System.out.println(d1);
         System.out.println(miCordero);
         System.out.println(miLlama);
         System.out.println(estaFecha);
-
     }
 }
 
@@ -26,7 +42,7 @@ class Cliente {
     private String nombre;
     private String rut;
     private Direccion dirCliente;
-    // arraylist ordencompra
+
 
     public Cliente(String n, String r, Direccion d) {
         this.nombre = n;
@@ -130,6 +146,7 @@ abstract class DocTributario {
         return ("Numero: " + this.numero + ", RUT: " + this.rut + ", Fecha: " + this.fecha.toString() + ", " + this.dirDoc.toString());
     }
 
+
 }
 
 class Boleta extends DocTributario {
@@ -155,15 +172,24 @@ abstract class Pago {
     private float monto;
     private Date fecha;
     private OrdenCompra orden;
-    public Pago(float m, Date f){
+    public Pago(float m, Date f, OrdenCompra o){
+
         this.monto = m;
         this.fecha = f;
+        this.orden = o;
+        this.orden.realizarPago(this);
     }
     /*Metodos getter y setter de Pago*/
     public void setFecha(Date fech){this.fecha = fech;}
     public Date getFecha(){return this.fecha;}
     public void setMonto(float m){this.monto = m;}
     public float getMonto(){return this.monto;}
+    public void setOrdenCompra(OrdenCompra ordencompra){
+        this.orden = ordencompra;
+    }
+    public OrdenCompra getOrdenCompra(){
+        return this.orden;
+    }
 
     /* **************************/
 
@@ -178,11 +204,18 @@ class Efectivo extends Pago {
     de dinero correctas...*/
 
     // Le enviaré mensaje al profe sobre esto
-    public Efectivo(float m, Date f){
-        super(m,f);
+    public Efectivo(float m, Date f, OrdenCompra o){
+        super(m,f,o);
     }
     /* todo: Claramente hay que modificar este metodo, es solo para probar*/
-    public float calcDevolucion(float pago){return pago - super.getMonto(); }
+    public float calcDevolucion(){
+        // SI es que el ultimo pago fue en efectivo y la orden esta pagada
+        if (this == this.getOrdenCompra().getUltimoPago() && this.getOrdenCompra().getEstado() == "Orden finalizada"){
+            return  getOrdenCompra().getPagoTotal() - this.getOrdenCompra().calcPrecio();
+        }else{
+            return 0;
+        }
+    }
     public String toString(){
         /*quizas podria causar problemas porque monto no es string¿?, VERIFICAR,*/
 
@@ -194,8 +227,8 @@ class Efectivo extends Pago {
 class Transferencia extends Pago {
     private String banco;
     private String numCuenta;
-    public Transferencia(float m, Date f,String b, String numC){
-        super(m,f);
+    public Transferencia(float m, Date f,OrdenCompra o,String b, String numC){
+        super(m,f,o);
         this.banco = b;
         this.numCuenta= numC;
     }
@@ -208,8 +241,8 @@ class Transferencia extends Pago {
 class Tarjeta extends Pago {
     private String tipo;
     private String numTransaccion;
-    public Tarjeta(float m, Date f, String t, String numT){
-        super(m,f);
+    public Tarjeta(float m, Date f,OrdenCompra o, String t, String numT){
+        super(m,f,o);
         this.tipo = t;
         this.numTransaccion = numT;
     }
@@ -267,6 +300,8 @@ class OrdenCompra {
     public void setEstado(String s) {this.estado = s;}
     public Cliente getCliente() {return this.cliente;}
     public void setCliente(Cliente nuevoCliente) {this.cliente = nuevoCliente;}
+    // todo: Gestionar error de getultimopago en caso de arraylist vacia
+    public Pago getUltimoPago() {return this.arrayPagos.get(this.arrayPagos.size()-1);}
 
 
     /* ***************************/
@@ -286,7 +321,25 @@ class OrdenCompra {
      * @param nuevoPago Pago sobre la orden
      */
     public void realizarPago(Pago nuevoPago) {
-        arrayPagos.add(nuevoPago);
+        // Verificamos si la orden esta pagada y si el pago es distinto de 0
+        if(!Objects.equals(this.estado, "Orden finalizada") && nuevoPago.getMonto() != 0){
+            // Verificamos si el pago se encuentra ya en la array
+            if(!arrayPagos.contains(nuevoPago)){
+                // aqui esto asociando los dos
+                arrayPagos.add(nuevoPago);
+                nuevoPago.setOrdenCompra(this);
+
+                if (0 < this.getPagoTotal()){
+                    this.setEstado(PAGO_PARCIAL);
+                    if(this.calcPrecio() <= this.getPagoTotal()){
+                        this.setEstado(FINALIZADO);
+                    }
+                }else{
+                    // Supongo que esta aqui porsiacaso
+                    this.setEstado(PENDIENTE);
+                }
+            }
+        }
     }
 
     /**
@@ -337,6 +390,21 @@ class OrdenCompra {
             default -> {
             }
         }
+    }
+    /**
+     * Calcula cual es el monto total pagado hasta el momento
+     */
+    public float getPagoTotal(){
+        float num = 0;
+        for (Pago pago : arrayPagos) {
+            num = num + pago.getMonto();
+        }
+        return num;
+    }
+    /* toString de OrdenCompra*/
+    public String toString(){
+        return ("Fecha: " + this.fecha + ", Estado: " + this.estado + ", Monto a pagar: " + this.calcPrecio()
+        + ", Monto pagado: " + this.getPagoTotal());
     }
 
 }
