@@ -43,7 +43,12 @@ class Cliente {
     private String rut;
     private Direccion dirCliente;
 
-
+    /**
+     * Constructor de la clase Cliente.
+     * @param n Nombre del cliente.
+     * @param r Rut asociado al cliente.
+     * @param d Dirección asociada al cliente.
+     */
     public Cliente(String n, String r, Direccion d) {
         this.nombre = n;
         this.rut = r;
@@ -53,7 +58,8 @@ class Cliente {
          * entonces sus propiedades dirCliente tienen la misma referencia
          * (no son instancias nuevas de Direccion)*/
     }
-    /* Metodos getter y setter para las propiedades de Cliente */
+    /*Metodos getter y setter para las propiedades de Cliente */
+
     public void setNombre(String str) {nombre = str;}
     public String getNombre() {return nombre;}
     public void setRut(String str) {rut = str;}
@@ -75,18 +81,19 @@ class Direccion {
     /* La respuesta es Si, lo he confirmado con el profesor Geoffrey. ¡Muy bien hecho!*/
     private String direccion = null;
     private ArrayList<Cliente> arrayClientes;
-
-    /* *Metodos getter y setter**/
-
+    /**
+     * Constructor de la clase Dirección.
+     * @param d Dirección (String).
+     */
     public Direccion(String d) {
         this.direccion = d;
         arrayClientes = new ArrayList<>();
     }
+    /*Metodos getter y setter*/
     public String getDir() {return direccion;}
     public void setDir(String inputString) {this.direccion = inputString;}
 
-    /* **************************/
-
+    /*Metodo toString*/
     public String toString() {
         return ("Direccion: " + this.direccion );
     }
@@ -107,6 +114,7 @@ class Direccion {
             return s.toString();
         }
     }
+
     public void addCliente(Cliente nuevoCliente) {
         arrayClientes.add(nuevoCliente);
     }
@@ -127,6 +135,13 @@ abstract class DocTributario {
     // Es un "error" del UML, pasa lo mismo con la agregación Cliente-Dirección.
     // El profesor me aceptó que incluyese una variable privada tipo Dirección dentro de las propiedades de Cliente,
     // asi que supongo que ocurre lo mismo en este caso.
+
+    /**
+     * Constructor de la clase abstracta DocTributario.
+     * @param n Numero del documento tributario.
+     * @param r Rut asociado al documento tributario.
+     * @param d Dirección asociada al documento tributario.
+     */
     public DocTributario(String n, String r, Direccion d){
         this.numero = n;
         this.rut = r;
@@ -150,6 +165,12 @@ abstract class DocTributario {
 }
 
 class Boleta extends DocTributario {
+    /**
+     * Constructor de la clase Boleta.
+     * @param n Numero de la boleta.
+     * @param r Rut asociado a la boleta.
+     * @param d Dirección asociada a la boleta.
+     */
     public Boleta(String n, String r, Direccion d){
         super(n,r,d);
     }
@@ -159,6 +180,12 @@ class Boleta extends DocTributario {
 }
 
 class Factura extends DocTributario {
+    /**
+     * Constructor de la clase Boleta.
+     * @param n Numero de la boleta.
+     * @param r Rut asociado a la boleta.
+     * @param d Dirección asociada a la boleta.
+     */
     public Factura(String n, String r, Direccion d){
         super(n,r,d);
     }
@@ -172,6 +199,12 @@ abstract class Pago {
     private float monto;
     private Date fecha;
     private OrdenCompra orden;
+    /**
+     * Constructor de la clase Pago.
+     * @param m Monto del pago.
+     * @param f Fecha del pago.
+     * @param o Orden de compra en el que se realiza el pago.
+     */
     public Pago(float m, Date f, OrdenCompra o){
 
         this.monto = m;
@@ -191,8 +224,7 @@ abstract class Pago {
         return this.orden;
     }
 
-    /* **************************/
-
+    /***************************/
     public String toString(){
         return ("Pago. Monto: " + this.getMonto() + ", Fecha: " + this.getFecha().toString());
     }
@@ -203,11 +235,18 @@ class Efectivo extends Pago {
     ¿es exacto el vuelto de 782,3?. Claro que si es en efectivo deberia estar con las cantidades
     de dinero correctas...*/
 
-    // Le enviaré mensaje al profe sobre esto
+    /**
+     * Constructor de la clase Efectivo.
+     * @param m Monto del pago en efectivo.
+     * @param f Fecha del pago en efectivo.
+     * @param o Orden de compra en el que se realiza el pago en efectivo.
+     */
     public Efectivo(float m, Date f, OrdenCompra o){
         super(m,f,o);
     }
-    /* todo: Claramente hay que modificar este metodo, es solo para probar*/
+    /**
+     * Calcula la cantidad de vuelto que se debe devolver despues del pago
+     */
     public float calcDevolucion(){
         // SI es que el ultimo pago fue en efectivo y la orden esta pagada
         if (this == this.getOrdenCompra().getUltimoPago() && this.getOrdenCompra().getEstado() == "Orden finalizada"){
@@ -217,9 +256,6 @@ class Efectivo extends Pago {
         }
     }
     public String toString(){
-        /*quizas podria causar problemas porque monto no es string¿?, VERIFICAR,*/
-
-        // Al concatenarlo en una string no debería haber problema
         return ("Pago en Efectivo. Monto: " + this.getMonto() + ", Fecha: " + this.getFecha().toString());
     }
 }
@@ -227,6 +263,14 @@ class Efectivo extends Pago {
 class Transferencia extends Pago {
     private String banco;
     private String numCuenta;
+    /**
+     * Constructor de la clase Transferencia.
+     * @param m Monto de la tranferencia.
+     * @param f Fecha de la transferencia.
+     * @param o Orden de compra en la que se realizara la transferencia.
+     * @param b Nombre del banco desde donde se hace la transferencia.
+     * @param numC Numero de cuenta.
+     */
     public Transferencia(float m, Date f,OrdenCompra o,String b, String numC){
         super(m,f,o);
         this.banco = b;
@@ -241,6 +285,12 @@ class Transferencia extends Pago {
 class Tarjeta extends Pago {
     private String tipo;
     private String numTransaccion;
+    /**
+     * Constructor de la clase Tarjeta.
+     * @param m Monto del pago hecho con la tarjeta.
+     * @param f Fecha del pago hecho con la tarjeta.
+     * @param o Orden de compra en donde se hace el pago.
+     */
     public Tarjeta(float m, Date f,OrdenCompra o, String t, String numT){
         super(m,f,o);
         this.tipo = t;
@@ -292,7 +342,7 @@ class OrdenCompra {
         this.arrayDetalle.add(new DetalleOrden(a, u));
     }
 
-    /* **Metodos getter y setter**/
+    /*Metodos getter y setter*/
 
     public Date getFecha() {return this.fecha;}
     public void setFecha(Date nuevaFecha) {this.fecha = nuevaFecha;}
@@ -304,7 +354,7 @@ class OrdenCompra {
     public Pago getUltimoPago() {return this.arrayPagos.get(this.arrayPagos.size()-1);}
 
 
-    /* ***************************/
+    /****************************/
 
     /**
      * nuevoArticulo se utiliza cuando se desean agregar articulos adicionales a la misma orden.
@@ -381,7 +431,6 @@ class OrdenCompra {
      * @param e Entero que utiliza las constantes definidas al inicio de la clase OrdenCompra.
      *          PENDIENTE = 0, PAGO_PARCIAL = 1, FINALIZADO = 2.
      */
-
     public void setEstado(int e) {
         switch (e) {
             case PENDIENTE -> this.estado = "Orden esperando pago";
@@ -412,20 +461,24 @@ class OrdenCompra {
 class DetalleOrden {
     private Articulo articulo;
     private int cantidad;
-    /*Creamos un detalle de orden especificando el articulo comprado y el numero de unidades de este*/
+    /**
+     * Metodo constructor de detalle de orden
+     * @param art Articulo a comprar
+     * @param unidades cantidad de articulos a comprar.
+     */
     public DetalleOrden(Articulo art, int unidades) {
         this.articulo = art;
         this.cantidad = unidades;
     }
 
-    /* **Metodos getter y setter**/
+    /*Metodos getter y setter*/
 
     public Articulo getArticulo() {return this.articulo;}
     public void setArticulo(Articulo nuevoArticulo) {this.articulo = nuevoArticulo;}
     public int getCantidad() {return this.cantidad;}
     public void setCantidad(int nuevaCantidad) {this.cantidad = nuevaCantidad;}
 
-    /* ***************************/
+    /****************************/
 
     /*¿Dado que el precio puede ser un float (valor decimal), consideramos todos los return type como floats...?*/
     /* todo: ¿El metodo calcIVA() calcula el IVA de la compra total, o de una sola unidad?*/
@@ -447,6 +500,14 @@ class Articulo {
     private String nombre;
     private String descripcion;
     private float precio;
+
+    /**
+     * Metodo constructor de la clase Articulo.
+     * @param pes Peso del articulo.
+     * @param nom Nombre del articulo.
+     * @param des Descripcion del articulo.
+     * @param pre Precio del articulo.
+     */
     public Articulo(float pes, String nom, String des, float pre){
             this.peso = pes;
             this.nombre = nom;
