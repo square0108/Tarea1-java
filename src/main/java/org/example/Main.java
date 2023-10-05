@@ -1,9 +1,11 @@
 package org.example;
+import java.sql.SQLOutput;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Random;
 // nota: Teams del ayudante: Emilio Ramos Montesino.
 
 public class Main {
@@ -15,45 +17,81 @@ public class Main {
         Date date2 = formatter.parse("05-03-1997");
         Date date3 = formatter.parse("28-08-1983");
         Date date4 = formatter.parse("11-09-1614");
+        System.out.println(date1);
+        System.out.println(date2);
         // Primero Generamos distintos articulos
         Articulo queso = new Articulo((float)40,"Queso","Es amarillo, sabroso y apestoso.",(float)100);
         Articulo jamon = new Articulo((float)35,"Jamon","Hecho de una cantidad indeterminada de cerdos.",(float)150);
         Articulo pan = new Articulo((float)60,"Pan","una marraqueta son solo dos dientes.",(float)50);
         Articulo cocacola = new Articulo((float)1000,"Coca-cola","Dulce, muy dulce... es mejor el agua.",(float)1200);
-        Articulo item = new Articulo((float)666,"Item sospechoso","Sientes el impulso de comprarlo, pero no sabes si es lo correcto.",(float)9999);
+        Articulo item = new Articulo((float)42,"Item sospechoso","Sientes el impulso de comprarlo, pero no sabes si es lo correcto.",(float)9999);
+        System.out.println(jamon);
+        System.out.println(item);
         //Generamos Direcciones
         Direccion direccion1 = new Direccion("Avenida Siempreviva, 742");
         Direccion direccion2 = new Direccion("Callejon Diagon");
-        Direccion direccion3 = new Direccion("Plaza de armas, banca 2");
+        System.out.println(direccion1);
         // Ahora Generamos clientes
         Cliente cliente1 = new Cliente("Homero Simpson", "10456354-2", direccion1);
-        Cliente cliente2 = new Cliente("Bart Simpson", "213456554-7", direccion1);
-        // todo: probar con dirección null
-        Cliente cliente3 = new Cliente("Harry Potter", "209774345-5", direccion2);
-        Cliente cliente4 = new Cliente("Don Sergio", "0", direccion3);
-        //Generamos Detalles de Orden
-        DetalleOrden detalleOrden1 = new DetalleOrden(queso, 50);
-        DetalleOrden detalleOrden2 = new DetalleOrden(jamon, 43);
-        DetalleOrden detalleOrden3 = new DetalleOrden(cocacola, 3);
-        DetalleOrden detalleOrden4 = new DetalleOrden(item, 0);
-        //Generamos Ordenes de Compra
-        OrdenCompra ordenCompra1 = new OrdenCompra(cliente1, pan, 43,1);
-        OrdenCompra ordenCompra2 = new OrdenCompra(cliente2, queso, 15,0);
-        OrdenCompra ordenCompra3 = new OrdenCompra(cliente4, item, 12,0);
-        OrdenCompra ordenCompra4 = new OrdenCompra(cliente1, cocacola, 2,1);
-        OrdenCompra ordenCompra5 = new OrdenCompra(cliente3, jamon, 0,0);
-        OrdenCompra ordenCompra6 = new OrdenCompra(cliente2, pan, -1,-1);
-        //Pagamos algunas cosas
-        Efectivo efectivo1 = new Efectivo((float)10, date1,ordenCompra1);
-        Efectivo efectivo2 = new Efectivo((float)100200, date2,ordenCompra1);
-        Efectivo efectivo3 = new Efectivo((float)5000, date4,ordenCompra1);
-        Tarjeta tarjeta1 = new Tarjeta((float)4573, date1,ordenCompra1,"Debito","234");
-        Tarjeta tarjeta2 = new Tarjeta((float)7645, date3,ordenCompra1,"Credito","1654");
-        Tarjeta tarjeta3 = new Tarjeta((float)3455, date4,ordenCompra1,"Debito","2341");
-        Transferencia transferencia1 = new Transferencia((float)6583, date1,ordenCompra1,"BBVA","754");
-        Transferencia transferencia2 = new Transferencia((float)2268, date2,null,"Banco Estado","362");
-        Transferencia transferencia3 = new Transferencia((float)3457, date3,ordenCompra1,"Banco de Chile","903");
-        //Hacemos pruebas
+        Cliente cliente2 = new Cliente("Harry Potter", "209774345-5", direccion2);
+        System.out.println(cliente1);
+
+        //---------Primera Prueba---------
+        System.out.println("\n---------Primera Prueba---------");
+        OrdenCompra ordenCompra1 = new OrdenCompra(cliente1,pan,10,0);
+        System.out.println(ordenCompra1);
+        ordenCompra1.nuevoArticulo(jamon,15);
+        System.out.println(ordenCompra1);
+        Transferencia transferencia1 = new Transferencia((float)1000, date1, ordenCompra1,"Banco Estado", "12345");
+        System.out.println(transferencia1);
+        System.out.println(ordenCompra1);
+        Efectivo efectivo1 = new Efectivo((float)1755, date2, ordenCompra1);
+        System.out.println(efectivo1);
+        System.out.println(ordenCompra1);
+        System.out.println("Cantidad de vuelto: " + efectivo1.calcDevolucion());
+        Efectivo efectivo2 = new Efectivo((float)340, date2, ordenCompra1);
+        System.out.println("Cantidad de vuelto: " + efectivo2.calcDevolucion() + " (Ya que no se ha usado el dinero)");
+
+        //---------Segunda Prueba---------
+        System.out.println("\n---------Segunda Prueba---------");
+        OrdenCompra ordenCompra2 = new OrdenCompra(cliente2,item,0,1);
+        System.out.println(ordenCompra2);
+        ordenCompra2.nuevoArticulo(cocacola,3);
+        System.out.println(ordenCompra2);
+        ordenCompra2.nuevoArticulo(queso,3);
+        ordenCompra2.nuevoArticulo(item,2);
+        System.out.println(ordenCompra2);
+        System.out.println(ordenCompra2.getDocTributario());
+        Tarjeta tarjeta1 = new Tarjeta((float)1000, date3, ordenCompra2, "Debito", "126643");
+        System.out.println(tarjeta1);
+        System.out.println(ordenCompra2);
+        Transferencia transferencia2 = new Transferencia((float)1000, date1, ordenCompra2,"Banco Estado", "12345");
+        System.out.println(ordenCompra2);
+        Efectivo efectivo3 = new Efectivo((float)21880, date4, ordenCompra2);
+        System.out.println(efectivo3);
+        System.out.println(ordenCompra2);
+        ordenCompra2.realizarPago(efectivo3);
+        System.out.println("Cantidad de vuelto: " + efectivo3.calcDevolucion());
+        Efectivo efectivo4 = new Efectivo((float)100, date4, ordenCompra2);
+        System.out.println(ordenCompra2);
+        System.out.println("Cantidad de vuelto: " + efectivo3.calcDevolucion());
+        System.out.println("Cantidad de vuelto: " + efectivo4.calcDevolucion());
+
+        //---------Tercera Prueba---------
+        System.out.println("\n---------Tercera Prueba---------");
+        OrdenCompra ordenCompra3 = new OrdenCompra(cliente2,cocacola,3,1);
+        System.out.println(ordenCompra3);
+        ordenCompra3.nuevoArticulo(item,1);
+        System.out.println(ordenCompra3);
+        // OJO: en la siguiente linea estamos pagando en ordenCompra2, no ordenCompra3
+        Transferencia transferencia3 = new Transferencia((float)1000, date4, ordenCompra2,"Banco Estado", "12345");
+        ordenCompra3.realizarPago(transferencia3);
+        System.out.println(ordenCompra3);
+        Efectivo efectivo5 = new Efectivo((float)13000, date1, ordenCompra3);
+        System.out.println(ordenCompra3);
+        System.out.println(efectivo5);
+
+
 
     }
 }
@@ -320,7 +358,7 @@ class Tarjeta extends Pago {
         this.numTransaccion = numT;
     }
     public String toString(){
-        return ("Pago con Tarjeta de" + this.tipo +". Monto: " + this.getMonto() + ", Fecha: "
+        return ("Pago con Tarjeta de " + this.tipo +". Monto: " + this.getMonto() + ", Fecha: "
                 + this.getFecha().toString() + ", Numero de transaccion: " + this.numTransaccion);
     }
 }
@@ -347,9 +385,12 @@ class OrdenCompra {
     public OrdenCompra(Cliente c, Articulo a, int u, int docType){
         this.fecha = new Date();
         this.cliente = c;
+        // Para generar numeros aleatorios
+        Random rand = new Random();
+        int randnumber = rand.nextInt(1000);
         switch (docType) {
-            case DocTributario.BOLETA -> this.docTributario = new Boleta("numero de prueba", c.getRut(), c.getDirCliente());
-            case DocTributario.FACTURA -> this.docTributario = new Factura("numero de prueba", c.getRut(), c.getDirCliente());
+            case DocTributario.BOLETA -> this.docTributario = new Boleta(String.valueOf(randnumber), c.getRut(), c.getDirCliente());
+            case DocTributario.FACTURA -> this.docTributario = new Factura(String.valueOf(randnumber), c.getRut(), c.getDirCliente());
             default -> {
             }
         }
@@ -394,7 +435,7 @@ class OrdenCompra {
      */
     public void realizarPago(Pago nuevoPago) {
         // Verificamos si la orden esta pagada y si el pago es distinto de 0
-        if (estado.equals("FINALIZADO")) {
+        if (this.estado.equals("FINALIZADO")) {
             System.out.println("Orden finalizada. No se aceptan mas pagos.");
         }
         else if (nuevoPago.getMonto() == 0 || arrayPagos.contains(nuevoPago)) {
@@ -461,8 +502,8 @@ class OrdenCompra {
     }
     /* toString de OrdenCompra*/
     public String toString(){
-        return ("Fecha: " + this.fecha + ", Estado: " + this.estado + ", Monto a pagar: " + this.calcPrecio()
-        + ", Monto pagado: " + this.SumaPagos());
+        return ("Estado: " + this.estado + ", Fecha: " + this.fecha +", Cliente: " +this.cliente.getNombre() +
+                ", Monto a pagar: " + this.calcPrecio() + ", Monto pagado: " + this.SumaPagos());
     }
 
 }
@@ -537,8 +578,8 @@ class Articulo {
 
     /*Metodo to String*/
     public String toString(){
-        return ("Nombre: " + this.nombre + "\nDescripcion: " + this.descripcion
-        + "\nPrecio: " + this.precio + "\nPeso: " + this.peso);
+        return ("Nombre: " + this.nombre + ", Descripcion: " + this.descripcion
+        + ", Precio: " + this.precio + ", Peso: " + this.peso);
     }
 }
 class InvalidInputException extends Exception{
