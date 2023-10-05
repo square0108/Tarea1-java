@@ -1,39 +1,60 @@
 package org.example;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.ArrayList;
+import java.util.Objects;
 // nota: Teams del ayudante: Emilio Ramos Montesino.
 
 public class Main {
-    public static void main(String[] args){
+    public static void main(String[] args) throws ParseException {
+        // Ojo con el throws ParseException, esta por el commando parse
+        SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+        // Generamos fechas
+        Date date1 = formatter.parse("10-10-2033");
+        Date date2 = formatter.parse("05-03-1997");
+        Date date3 = formatter.parse("28-08-1983");
+        Date date4 = formatter.parse("11-09-1614");
+        // Primero Generamos distintos articulos
+        Articulo queso = new Articulo((float)40,"Queso","Es amarillo, sabroso y apestoso.",(float)100);
+        Articulo jamon = new Articulo((float)35,"Jamon","Hecho de una cantidad indeterminada de cerdos.",(float)150);
+        Articulo pan = new Articulo((float)60,"Pan","una marraqueta son solo dos dientes.",(float)50);
+        Articulo cocacola = new Articulo((float)1000,"Coca-cola","Dulce, muy dulce... es mejor el agua.",(float)1200);
+        Articulo item = new Articulo((float)666,"Item sospechoso","Sientes el impulso de comprarlo, pero no sabes si es lo correcto.",(float)9999);
+        //Generamos Direcciones
+        Direccion direccion1 = new Direccion("Avenida Siempreviva, 742");
+        Direccion direccion2 = new Direccion("Callejon Diagon");
+        Direccion direccion3 = new Direccion("Plaza de armas, banca 2");
+        // Ahora Generamos clientes
+        Cliente cliente1 = new Cliente("Homero Simpson", "10456354-2", direccion1);
+        Cliente cliente2 = new Cliente("Bart Simpson", "213456554-7", direccion1);
+        // todo: probar con dirección null
+        Cliente cliente3 = new Cliente("Harry Potter", "209774345-5", direccion2);
+        Cliente cliente4 = new Cliente("Don Sergio", "0", direccion3);
+        //Generamos Detalles de Orden
+        DetalleOrden detalleOrden1 = new DetalleOrden(queso, 50);
+        DetalleOrden detalleOrden2 = new DetalleOrden(jamon, 43);
+        DetalleOrden detalleOrden3 = new DetalleOrden(cocacola, 3);
+        DetalleOrden detalleOrden4 = new DetalleOrden(item, 0);
+        //Generamos Ordenes de Compra
+        OrdenCompra ordenCompra1 = new OrdenCompra(cliente1, pan, 43,1);
+        OrdenCompra ordenCompra2 = new OrdenCompra(cliente2, queso, 15,0);
+        OrdenCompra ordenCompra3 = new OrdenCompra(cliente4, item, 12,0);
+        OrdenCompra ordenCompra4 = new OrdenCompra(cliente1, cocacola, 2,1);
+        OrdenCompra ordenCompra5 = new OrdenCompra(cliente3, jamon, 0,0);
+        OrdenCompra ordenCompra6 = new OrdenCompra(cliente2, pan, -1,-1);
+        //Pagamos algunas cosas
+        Efectivo efectivo1 = new Efectivo((float)10, date1,ordenCompra1);
+        Efectivo efectivo2 = new Efectivo((float)100200, date2,ordenCompra1);
+        Efectivo efectivo3 = new Efectivo((float)5000, date4,ordenCompra1);
+        Tarjeta tarjeta1 = new Tarjeta((float)4573, date1,ordenCompra1,"Debito","234");
+        Tarjeta tarjeta2 = new Tarjeta((float)7645, date3,ordenCompra1,"Credito","1654");
+        Tarjeta tarjeta3 = new Tarjeta((float)3455, date4,ordenCompra1,"Debito","2341");
+        Transferencia transferencia1 = new Transferencia((float)6583, date1,ordenCompra1,"BBVA","754");
+        Transferencia transferencia2 = new Transferencia((float)2268, date2,null,"Banco Estado","362");
+        Transferencia transferencia3 = new Transferencia((float)3457, date3,ordenCompra1,"Banco de Chile","903");
+        //Hacemos pruebas
 
-        Direccion d1 = new Direccion("Arboledas Verdes 420");
-        Cliente miCordero = new Cliente("Cordero","21.165.368-K",d1);
-        Cliente miLlama = new Cliente("Llama","22.22.3.4.5",d1);
-        Articulo miPan = new Articulo((float)32.94, "Pancito","Es un pancito.", (float)300);
-        Articulo miQueso = new Articulo((float)12, "Queso","Sirve para echarselo al pan.", (float)100);
-        Date estaFecha = new Date();
-        OrdenCompra orden = new OrdenCompra(miCordero, miPan, 12, DocTributario.BOLETA);
-
-        orden.nuevoArticulo(miQueso,10);
-        System.out.println("Precio de la orden: " + orden.calcPrecio());
-        orden.nuevoArticulo(miPan,10);
-        System.out.println("Precio de la orden: " + orden.calcPrecio());
-
-        Transferencia pago2 = new Transferencia(1000,estaFecha, orden, "BBVA", "123123");
-
-        orden.realizarPago(pago2);
-        System.out.println(orden.toString());
-        orden.realizarPago(pago2);
-        System.out.println(orden.toString());
-        Transferencia pago3 = new Transferencia(6100,estaFecha, orden, "BBVA", "123123");
-        System.out.println(orden.toString());
-        Efectivo pago1 = new Efectivo(100,estaFecha,orden);
-        System.out.println(orden.toString());
-        System.out.println(pago1.calcDevolucion());
-        System.out.println(orden);
-        Efectivo ultimo = new Efectivo(550, new Date(), orden);
-        System.out.println(orden);
-        System.out.println(ultimo.calcDevolucion());
     }
 }
 
@@ -42,7 +63,12 @@ class Cliente {
     private String rut;
     private Direccion dirCliente;
 
-
+    /**
+     * Constructor de la clase Cliente.
+     * @param n Nombre del cliente.
+     * @param r Rut asociado al cliente.
+     * @param d Dirección asociada al cliente.
+     */
     public Cliente(String n, String r, Direccion d) {
         this.nombre = n;
         this.rut = r;
@@ -52,7 +78,8 @@ class Cliente {
          * entonces sus propiedades dirCliente tienen la misma referencia
          * (no son instancias nuevas de Direccion)*/
     }
-    /* Metodos getter y setter para las propiedades de Cliente */
+    /*Metodos getter y setter para las propiedades de Cliente */
+
     public void setNombre(String str) {nombre = str;}
     public String getNombre() {return nombre;}
     public void setRut(String str) {rut = str;}
@@ -74,18 +101,19 @@ class Direccion {
     /* La respuesta es Si, lo he confirmado con el profesor Geoffrey. ¡Muy bien hecho!*/
     private String direccion = null;
     private ArrayList<Cliente> arrayClientes;
-
-    /* *Metodos getter y setter**/
-
+    /**
+     * Constructor de la clase Dirección.
+     * @param d Dirección (String).
+     */
     public Direccion(String d) {
         this.direccion = d;
         arrayClientes = new ArrayList<>();
     }
+    /*Metodos getter y setter*/
     public String getDir() {return direccion;}
     public void setDir(String inputString) {this.direccion = inputString;}
 
-    /* **************************/
-
+    /*Metodo toString*/
     public String toString() {
         return ("Direccion: " + this.direccion );
     }
@@ -106,6 +134,7 @@ class Direccion {
             return s.toString();
         }
     }
+
     public void addCliente(Cliente nuevoCliente) {
         arrayClientes.add(nuevoCliente);
     }
@@ -126,6 +155,13 @@ abstract class DocTributario {
     // Es un "error" del UML, pasa lo mismo con la agregación Cliente-Dirección.
     // El profesor me aceptó que incluyese una variable privada tipo Dirección dentro de las propiedades de Cliente,
     // asi que supongo que ocurre lo mismo en este caso.
+
+    /**
+     * Constructor de la clase abstracta DocTributario.
+     * @param n Numero del documento tributario.
+     * @param r Rut asociado al documento tributario.
+     * @param d Dirección asociada al documento tributario.
+     */
     public DocTributario(String n, String r, Direccion d){
         this.numero = n;
         this.rut = r;
@@ -149,6 +185,12 @@ abstract class DocTributario {
 }
 
 class Boleta extends DocTributario {
+    /**
+     * Constructor de la clase Boleta.
+     * @param n Numero de la boleta.
+     * @param r Rut asociado a la boleta.
+     * @param d Dirección asociada a la boleta.
+     */
     public Boleta(String n, String r, Direccion d){
         super(n,r,d);
     }
@@ -158,6 +200,12 @@ class Boleta extends DocTributario {
 }
 
 class Factura extends DocTributario {
+    /**
+     * Constructor de la clase Boleta.
+     * @param n Numero de la boleta.
+     * @param r Rut asociado a la boleta.
+     * @param d Dirección asociada a la boleta.
+     */
     public Factura(String n, String r, Direccion d){
         super(n,r,d);
     }
@@ -171,6 +219,12 @@ abstract class Pago {
     private float monto;
     private Date fecha;
     private OrdenCompra orden;
+    /**
+     * Constructor de la clase Pago.
+     * @param m Monto del pago.
+     * @param f Fecha del pago.
+     * @param o Orden de compra en el que se realiza el pago.
+     */
     public Pago(float m, Date f, OrdenCompra o){
 
         this.monto = m;
@@ -190,14 +244,23 @@ abstract class Pago {
         return this.orden;
     }
 
-    /* **************************/
-
+    /***************************/
     public String toString(){
         return ("Pago. Monto: " + this.getMonto() + ", Fecha: " + this.getFecha().toString());
     }
 }
 
 class Efectivo extends Pago {
+    /*¿El pago en efectivo es exacto, o tenemos monedas de 10,50,100,500?
+    ¿es exacto el vuelto de 782,3?. Claro que si es en efectivo deberia estar con las cantidades
+    de dinero correctas...*/
+
+    /**
+     * Constructor de la clase Efectivo.
+     * @param m Monto del pago en efectivo.
+     * @param f Fecha del pago en efectivo.
+     * @param o Orden de compra en el que se realiza el pago en efectivo.
+     */
     public Efectivo(float m, Date f, OrdenCompra o){
         super(m,f,o);
     }
@@ -214,9 +277,6 @@ class Efectivo extends Pago {
         }
     }
     public String toString(){
-        /*quizas podria causar problemas porque monto no es string¿?, VERIFICAR,*/
-
-        // Al concatenarlo en una string no debería haber problema
         return ("Pago en Efectivo. Monto: " + this.getMonto() + ", Fecha: " + this.getFecha().toString());
     }
 }
@@ -224,6 +284,14 @@ class Efectivo extends Pago {
 class Transferencia extends Pago {
     private String banco;
     private String numCuenta;
+    /**
+     * Constructor de la clase Transferencia.
+     * @param m Monto de la tranferencia.
+     * @param f Fecha de la transferencia.
+     * @param o Orden de compra en la que se realizara la transferencia.
+     * @param b Nombre del banco desde donde se hace la transferencia.
+     * @param numC Numero de cuenta.
+     */
     public Transferencia(float m, Date f,OrdenCompra o,String b, String numC){
         super(m,f,o);
         this.banco = b;
@@ -238,6 +306,14 @@ class Transferencia extends Pago {
 class Tarjeta extends Pago {
     private String tipo;
     private String numTransaccion;
+    /**
+     * Constructor de la clase Tarjeta.
+     * @param m Monto del pago hecho con la tarjeta.
+     * @param f Fecha del pago hecho con la tarjeta.
+     * @param o Orden de compra en donde se hace el pago.
+     * @param t Tipo de tarjeta (Debito o Credito).
+     * @param numT Numero de transaccion.
+     */
     public Tarjeta(float m, Date f,OrdenCompra o, String t, String numT){
         super(m,f,o);
         this.tipo = t;
@@ -284,7 +360,7 @@ class OrdenCompra {
         this.arrayDetalle.add(new DetalleOrden(a, u));
     }
 
-    /* **Metodos getter y setter**/
+    /*Metodos getter y setter*/
 
     public Date getFecha() {return this.fecha;}
     public void setFecha(Date nuevaFecha) {this.fecha = nuevaFecha;}
@@ -300,7 +376,7 @@ class OrdenCompra {
     public void setArrayPagos(ArrayList<Pago> arrayPagos) {this.arrayPagos = arrayPagos;}
 
 
-    /* ***************************/
+    /****************************/
 
     /**
      * nuevoArticulo se utiliza cuando se desean agregar articulos adicionales a la misma orden.
@@ -394,20 +470,24 @@ class OrdenCompra {
 class DetalleOrden {
     private Articulo articulo;
     private int cantidad;
-    /*Creamos un detalle de orden especificando el articulo comprado y el numero de unidades de este*/
+    /**
+     * Metodo constructor de detalle de orden
+     * @param art Articulo a comprar
+     * @param unidades cantidad de articulos a comprar.
+     */
     public DetalleOrden(Articulo art, int unidades) {
         this.articulo = art;
         this.cantidad = unidades;
     }
 
-    /* **Metodos getter y setter**/
+    /*Metodos getter y setter*/
 
     public Articulo getArticulo() {return this.articulo;}
     public void setArticulo(Articulo nuevoArticulo) {this.articulo = nuevoArticulo;}
     public int getCantidad() {return this.cantidad;}
     public void setCantidad(int nuevaCantidad) {this.cantidad = nuevaCantidad;}
 
-    /* ***************************/
+    /****************************/
 
     /*¿Dado que el precio puede ser un float (valor decimal), consideramos todos los return type como floats...?*/
     /* todo: ¿El metodo calcIVA() calcula el IVA de la compra total, o de una sola unidad?*/
@@ -429,6 +509,14 @@ class Articulo {
     private String nombre;
     private String descripcion;
     private float precio;
+
+    /**
+     * Metodo constructor de la clase Articulo.
+     * @param pes Peso del articulo.
+     * @param nom Nombre del articulo.
+     * @param des Descripcion del articulo.
+     * @param pre Precio del articulo.
+     */
     public Articulo(float pes, String nom, String des, float pre){
             this.peso = pes;
             this.nombre = nom;
