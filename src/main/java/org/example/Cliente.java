@@ -21,6 +21,7 @@ public class Cliente {
          * entonces sus propiedades dirCliente tienen la misma referencia
          * (no son instancias nuevas de Direccion)*/
     }
+
     /*Metodos getter y setter para las propiedades de Cliente */
 
     public void setNombre(String str) {nombre = str;}
@@ -29,11 +30,10 @@ public class Cliente {
     public String getRut() {return rut;}
     public void setDirCliente(Direccion dir) {dirCliente = dir;}
     public Direccion getDirCliente() {return dirCliente;}
-    /* Metodo toString que a su vez utiliza el toString de Direccion */
-    public String toString() {
-        /*Aqui falta el toString de dircliente?? -> this.dirCliente.toString() ¿?
 
-        // si. Me agile*/
+    /* Metodo toString() que a su vez utiliza el toString() de Direccion */
+
+    public String toString() {
         return ("Nombre: " + this.getNombre() + ", RUT: " + this.getRut() + ", " + this.dirCliente.toString());
     }
 }

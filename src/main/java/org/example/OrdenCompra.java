@@ -6,8 +6,6 @@ import java.util.Random;
 // nota: Teams del ayudante: Emilio Ramos Montesino.
 
 public class OrdenCompra {
-    /* Estas constantes definen los distintos estados que puede tener una orden, solo se utilizan internamente para cambiar de estado. */
-
     private Date fecha;
     private String estado;
     private Cliente cliente;
@@ -17,6 +15,17 @@ public class OrdenCompra {
 
     /**
      * Constructor de OrdenCompra. Por defecto la orden se emite en la fecha actual.
+     * Algunos detalles de la implementacion:
+     * <p>
+     * - Se decidio incluir a Cliente como uno de los parametros, pues no parecia tener mucho sentido hacer una orden al aire,
+     * a nuestro parecer.
+     * <p>
+     * - Mismo razonamiento para Articulo y su cantidad.
+     * <p>
+     * - No hay un metodo para realizar pagos en OrdenCompra, pues se requiere un objeto OrdenCompra como argumento de Pago para instanciar un
+     * objeto de la clase Efectivo/Transferencia/Tarjeta. Esto significa que los pagos se realizan automaticamente al crear un
+     * nuevo objeto del tipo Efectivo/Transferencia/Tarjeta. ¿Tiene sentido hacer un pago sin destinatario?
+     *
      * @param c Cliente que crea la orden.
      * @param a Artículo que se desea comprar. Para crear la orden se puede elegir solo uno, para agregar más
      *            articulos se deben usar los metodos de OrdenCompra.
@@ -24,6 +33,7 @@ public class OrdenCompra {
      * @param docType Tipo de documento tributario que se desea. Se definen dos constantes públicas en la clase
      *               DocTributario: BOLETA = 0, FACTURA = 1.
      */
+
     public OrdenCompra(Cliente c, Articulo a, int u, int docType){
         this.fecha = new Date();
         this.cliente = c;
@@ -58,9 +68,6 @@ public class OrdenCompra {
     public ArrayList<Pago> getArrayPagos() {return arrayPagos;}
     public void setArrayPagos(ArrayList<Pago> arrayPagos) {this.arrayPagos = arrayPagos;}
 
-
-    /****************************/
-
     /**
      * nuevoArticulo se utiliza cuando se desean agregar articulos adicionales a la misma orden.
      * @param art Articulo nuevo a agregar a la orden
@@ -72,7 +79,6 @@ public class OrdenCompra {
 
     /**
      * realizarPago agrega pagos que pueden realizarse progresivamente hasta pagar la orden.
-     * TODO: Verificar si intentar realizar un pago nuevo sobre una orden completa (todos los detalles pagados) debe tirar una exception?
      * @param nuevoPago Pago sobre la orden
      */
     public void realizarPago(Pago nuevoPago) {
@@ -84,8 +90,7 @@ public class OrdenCompra {
             System.out.println("El pago: " + nuevoPago + "\n no es valido. Verifique que el monto sea positivo o que no se haya reutilizando un pago ya hecho.");
         }
         else {
-            // aqui esto asociando los dos
-            // Solo una vez que el pago ingresado pasa los dos checks anteriores (la orden no ha finalizado, Y, el pago no es ni cero ni repetido) entonces es posible que el estado de la orden cambie.
+            // Solo una vez que el pago ingresado cumple los dos checks anteriores (la orden no ha finalizado, Y, el pago no es ni cero ni repetido) entonces es posible que el estado de la orden cambie.
             arrayPagos.add(nuevoPago);
             nuevoPago.setOrdenCompra(this);
 
@@ -142,14 +147,18 @@ public class OrdenCompra {
         }
         return num;
     }
+
     /* toString de OrdenCompra*/
+
     public String toString(){
         StringBuilder s = new StringBuilder();
         for (int i = 0; i < this.getArrayDetalle().size(); i++) {
             s.append(this.getArrayDetalle().get(i).getArticulo().getNombre());
             s.append(" (").append(this.getArrayDetalle().get(i).getCantidad()).append(" unidades), ");
         }
-        if (s.length() == 0 || this.getArrayDetalle().size() == 0) s.append("(Sin productos)");
+        if (this.getArrayDetalle().size() == 0) {
+            s.append("(Sin productos)");
+        }
         return ("Orden: " + s +
                 "Estado: " + this.estado +
                 ", Fecha: " + this.fecha +
