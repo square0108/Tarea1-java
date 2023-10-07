@@ -39,10 +39,6 @@ public abstract class Pago {
 }
 
 class Efectivo extends Pago {
-    /*¿El pago en efectivo es exacto, o tenemos monedas de 10,50,100,500?
-    ¿es exacto el vuelto de 782,3?. Claro que si es en efectivo deberia estar con las cantidades
-    de dinero correctas...*/
-
     /**
      * Constructor de la clase Efectivo.
      * @param m Monto del pago en efectivo.

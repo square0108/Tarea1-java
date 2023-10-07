@@ -2,9 +2,7 @@ package org.example;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.ArrayList;
-import java.util.Random;
-// nota: Teams del ayudante: Emilio Ramos Montesino.
+
 
 public class Main {
     public static void main(String[] args) throws ParseException {

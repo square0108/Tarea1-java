@@ -10,12 +10,6 @@ public abstract class DocTributario {
     private String rut;
     private Date fecha;
     private Direccion dirDoc;
-    /*En el enunciado del programa dice que el documento tributario debe tener una dirección, esta no aparece
-    en el diagrama UML. ¿Se habra estara malo el UML o tengo mala comprensión lectora?*/
-
-    // Es un "error" del UML, pasa lo mismo con la agregación Cliente-Dirección.
-    // El profesor me aceptó que incluyese una variable privada tipo Dirección dentro de las propiedades de Cliente,
-    // asi que supongo que ocurre lo mismo en este caso.
 
     /**
      * Constructor de la clase abstracta DocTributario.
