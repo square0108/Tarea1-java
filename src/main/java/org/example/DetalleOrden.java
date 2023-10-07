@@ -21,8 +21,9 @@ public class DetalleOrden {
     public int getCantidad() {return this.cantidad;}
     public void setCantidad(int nuevaCantidad) {this.cantidad = nuevaCantidad;}
 
-    /****************************/
-
+    /**
+     * Metodos para calcular el precio, precio sin IVA, IVA, y el peso del detalle completo.
+     */
     public float calcPrecio() {return cantidad*articulo.getPrecio();}
     public float calcPrecioSinIVA() {
         /*El IVA en Chile es 19%, el cual viene incluido en el precio de cada articulo*/
@@ -30,6 +31,9 @@ public class DetalleOrden {
     }
     public float calcIVA() {return calcPrecio()-calcPrecioSinIVA();}
     public float calcPeso() {return (cantidad*articulo.getPeso());}
+
+    /* Metodo toString() */
+
     @Override
     public String toString() {
         return (articulo.toString() + ", Unidades: " + this.cantidad);

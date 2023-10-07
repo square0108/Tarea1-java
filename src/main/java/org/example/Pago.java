@@ -52,6 +52,12 @@ class Efectivo extends Pago {
     public Efectivo(float m, Date f, OrdenCompra o){
         super(m,f,o);
     }
+
+    /**
+     * Calcula el vuelto a devolver tras hacer una compra con efectivo. Solo se retorna un valor distinto de 0 si
+     * la compra en efectivo posee un monto que cause que MONTO PAGADO sobrepase a MONTO A PAGAR.
+     * @return número entero representando el vuelto a recibir por el cliente.
+     */
     public int calcDevolucion(){
         int ultimoIndex = super.getOrdenCompra().getArrayPagos().size()-1;
 
@@ -64,6 +70,7 @@ class Efectivo extends Pago {
             return 0;
         }
     }
+
     public String toString(){
         return ("Pago en Efectivo. Monto: " + this.getMonto() + ", Fecha: " + this.getFecha().toString());
     }

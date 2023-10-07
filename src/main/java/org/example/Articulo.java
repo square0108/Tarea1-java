@@ -1,6 +1,8 @@
 package org.example;
 // nota: Teams del ayudante: Emilio Ramos Montesino.
 
+import java.lang.annotation.Inherited;
+
 public class Articulo {
     private float peso;
     private String nombre;
@@ -33,6 +35,7 @@ public class Articulo {
     public float getPrecio(){return this.precio;}
 
     /*Metodo to String*/
+
     public String toString(){
         return ("Nombre: " + this.nombre + ", Descripcion: " + this.descripcion
         + ", Precio: " + this.precio + ", Peso: " + this.peso);
